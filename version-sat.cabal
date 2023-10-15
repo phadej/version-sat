@@ -1,0 +1,79 @@
+cabal-version: 2.4
+name:          version-sat
+version:       0.1.0.0
+synopsis:      SAT with some support of Cabal VersionRange
+description:   SAT with some support of Cabal VersionRange.
+license:       BSD-3-Clause
+license-file:  LICENSE
+author:        Oleg Grenrus <oleg.grenrus@iki.fi>
+maintainer:    Oleg Grenrus <oleg.grenrus@iki.fi>
+category:      Development
+build-type:    Simple
+
+common language
+  default-language:   Haskell2010
+  default-extensions:
+    DeriveTraversable
+    GADTs
+    RankNTypes
+    RecordWildCards
+    ScopedTypeVariables
+    StandaloneDeriving
+
+library
+  import:          language
+  hs-source-dirs:  src
+  exposed-modules:
+    VersionSAT
+    VersionSAT.PackageDescription
+
+  other-modules:
+    PackageDescriptionExtras
+    VersionExtras
+    VersionSAT.PackageDescription.AutoFlags
+    VersionSAT.PackageDescription.Common
+    VersionSAT.PackageDescription.Satisfiable
+
+  build-depends:
+    , base                 ^>=4.16.0.0
+    , bytestring
+    , Cabal-syntax         ^>=3.10.1.0
+    , containers
+    , hkd                  ^>=0.2.1
+    , indexed-traversable
+    , sat-simple           ^>=0.1.0.0
+
+test-suite version-sat-tests
+  import:         language
+  type:           exitcode-stdio-1.0
+  main-is:        version-sat-tests.hs
+  hs-source-dirs: tests
+  build-depends:
+    , base
+    , bytestring
+    , Cabal-syntax
+    , hkd
+    , version-sat
+
+  -- test only dependencies
+  build-depends:
+    , tasty
+    , tasty-hunit
+
+test-suite version-sat-demo
+  import:         language
+  type:           exitcode-stdio-1.0
+  main-is:        version-sat-demo.hs
+  hs-source-dirs: tests
+  build-depends:
+    , base
+    , bytestring
+    , Cabal-syntax
+    , hkd
+    , version-sat
+
+  build-depends:
+    , cabal-install-parsers  ^>=0.6.1
+    , containers
+    , indexed-traversable
+    , tar
