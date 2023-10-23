@@ -125,8 +125,10 @@ prettyModel Model {..} = do
         else putStrLn $ "compiler not " ++ prettyShow pn
 
     -- dependencies
-    for_ (Map.toList modelDeps) $ \(pn, (Identity b, Identity v)) -> when b $
-        putStrLn $ prettyShow pn ++ " " ++ prettyShow v
+    for_ (Map.toList modelDeps) $ \(pn, (Identity b, Identity v)) ->
+        if b
+        then putStrLn $ prettyShow pn ++ " " ++ prettyShow v
+        else putStrLn $ "(" ++ prettyShow pn ++ " " ++ prettyShow v ++ ")"
 
 instance FFunctor Model where ffmap = ffmapDefault
 instance FFoldable Model where ffoldMap = ffoldMapDefault
@@ -188,7 +190,7 @@ componentProp st manualFlags = convert
     convertDependency :: Dependency -> SAT s (Prop s)
     convertDependency (Dependency pn vr _ls) = do
         (lb, lv) <- literalDependencyVersion st pn
-        return (lit lb /\ inRange lv vr)
+        return ({- lit lb /\ -} inRange lv vr)
 
     convertLib :: bi -> SAT s (Prop s)
     convertLib component = do

@@ -107,11 +107,15 @@ lit = Lit
 
 -- | Disjunction of propositional formulas, or.
 (\/) :: Prop s -> Prop s -> Prop s
-(\/) = (:||:)
+PTrue  \/ _  = PTrue
+_      \/ PTrue = PTrue 
+x      \/ y = x :||:y
 
 -- | Conjunction of propositional formulas, and.
 (/\) :: Prop s -> Prop s -> Prop s
-(/\) = (:&&:)
+PTrue /\ y     = y
+x     /\ PTrue = x
+x     /\ y     = x :&&: y
 
 -- | Implication of propositional formulas.
 (-->) :: Prop s -> Prop s -> Prop s
@@ -135,10 +139,12 @@ ite c t f = (c \/ f) /\ (neg c \/ t) /\ (t \/ f) -- this encoding makes (t == f)
 
 -- | Negation of propositional formulas.
 instance Neg (Prop s) where
-    neg PTrue   = PFalse
-    neg PFalse  = PTrue
-    neg (Not p) = p
-    neg p       = Not p
+    neg PTrue      = PFalse
+    neg PFalse     = PTrue
+    neg (Not p)    = p
+    neg (p :&&: q) = neg p \/ neg q
+    neg (p :||: q) = neg p /\ neg q
+    neg p          = Not p
 
 -------------------------------------------------------------------------------
 -- Methods

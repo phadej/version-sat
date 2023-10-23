@@ -13,6 +13,7 @@ import System.IO
 import qualified Cabal.Config as I
 import qualified Data.Map as Map
 import qualified Cabal.Index as I
+import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as LBS
 import qualified Codec.Archive.Tar.Entry as Tar
 import qualified Codec.Archive.Tar.Index as Tar
@@ -23,7 +24,8 @@ main :: IO ()
 main = do
     args <- getArgs
     case args of
-        "non-disjoint" : _ -> nonDisjointPackages
+        "revision" : x : y : [] -> revision x y
+        "non-disjoint" : [] -> nonDisjointPackages
         _ -> unsatisfiablePackages
 
 getHackageIndexPath :: IO FilePath
@@ -37,6 +39,27 @@ getHackageIndexPath = do
     printf "Hackage index at %s\n" indexPath
 
     return indexPath
+
+revision :: FilePath -> FilePath -> IO ()
+revision fp1 fp2 = do
+    gpd1 <- readGPD fp1
+    gpd2 <- readGPD fp2
+    res <- compareRevision gpd1 gpd2
+    case res of
+        PNC -> putStrLn "not comparable"
+        PEQ -> putStrLn "equal"
+        PLT m -> do
+            putStrLn "relaxing, allowing e.g." 
+            prettyModel m
+        PGT m -> do
+            putStrLn "tightening, disallowing e.g." 
+            prettyModel m
+  where
+    readGPD fp = do
+        bs <- BS.readFile fp
+        case parseGenericPackageDescriptionMaybe bs of
+            Nothing -> fail $ "cannot parse " ++ fp
+            Just gpd -> return gpd
 
 nonDisjointPackages :: IO ()
 nonDisjointPackages = do

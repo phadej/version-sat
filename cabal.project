@@ -1,5 +1,4 @@
 packages: .
-packages: https://hackage.haskell.org/package/sat-simple-0.1.0.0/candidate/sat-simple-0.1.0.0.tar.gz
 
 package version-sat
   ghc-options: -Wall
