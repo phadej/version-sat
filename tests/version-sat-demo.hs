@@ -44,16 +44,18 @@ revision :: FilePath -> FilePath -> IO ()
 revision fp1 fp2 = do
     gpd1 <- readGPD fp1
     gpd2 <- readGPD fp2
-    res <- compareRevision gpd1 gpd2
-    case res of
-        PNC -> putStrLn "not comparable"
-        PEQ -> putStrLn "equal"
-        PLT m -> do
-            putStrLn "relaxing, allowing e.g." 
-            prettyModel m
-        PGT m -> do
-            putStrLn "tightening, disallowing e.g." 
-            prettyModel m
+    mres <- compareRevision gpd1 gpd2
+    case mres of
+        Nothing -> putStrLn "no libraries"
+        Just res -> case res of
+            PNC -> putStrLn "not comparable"
+            PEQ -> putStrLn "equal"
+            PLT m -> do
+                putStrLn "relaxing, allowing e.g."
+                prettyModel m
+            PGT m -> do
+                putStrLn "tightening, disallowing e.g."
+                prettyModel m
   where
     readGPD fp = do
         bs <- BS.readFile fp
@@ -84,7 +86,7 @@ nonDisjointPackages = do
                                 if null flags
                                 then return ()
                                 else do
-                                    modifyIORef' unsatRef (1 +) 
+                                    modifyIORef' unsatRef (1 +)
                                     printf "package %s %s: %s\n" (prettyShow pn) (prettyShow ver) (unwords (map prettyShow (Map.keys flags)))
                                     {-
                                     ifor_ flags $ \fn model -> do
@@ -125,7 +127,7 @@ unsatisfiablePackages = do
                                             Nothing -> do
                                                 printf "package %s %s\n" (prettyShow pn) (prettyShow ver)
                                                 modifyIORef' totalRef (1 +)
-                                                modifyIORef' unsatRef (1 +) 
+                                                modifyIORef' unsatRef (1 +)
                                             Just _  -> do
                                                 modifyIORef' totalRef (1 +)
 

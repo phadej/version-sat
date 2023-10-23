@@ -20,13 +20,13 @@ data POrdering a
   | PNC
   deriving (Functor, Foldable, Traversable, Show)
 
-compareRevision :: GenericPackageDescription -> GenericPackageDescription -> IO (POrdering (Model Identity))
+compareRevision :: GenericPackageDescription -> GenericPackageDescription -> IO (Maybe (POrdering (Model Identity)))
 compareRevision gpd1 gpd2 =
      case condLibrary gpd1 of
-        Nothing -> return PNC
+        Nothing -> return Nothing
         Just lib1 -> case condLibrary gpd2 of
-            Nothing -> return PNC
-            Just lib2 -> compareComponents lib1 lib2
+            Nothing -> return Nothing
+            Just lib2 -> Just <$> compareComponents lib1 lib2
 
 compareComponents :: CondTree ConfVar [Dependency] Library -> CondTree ConfVar [Dependency] Library -> IO (POrdering (Model Identity))
 compareComponents comp1 comp2 = do
